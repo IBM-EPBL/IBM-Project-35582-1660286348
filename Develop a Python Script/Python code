@@ -1,0 +1,28 @@
+import json
+import wiotp.sdk.device
+import time
+import random 
+myConfig = { 
+   "identity": {
+      "orgId": "ts2p3l", 
+      "typeId": "medicine1-device_type", 
+      "deviceId": "PNT2022TMID29933-Medicine"
+ },
+ "auth": {
+      "token": "lq!RGKJdXNRjtvm0x2"
+   }
+ } 
+client = wiotp.sdk.device.DeviceClient(config=myConfig, logHandlers=None)
+ client.connect() 
+ 
+for i in range(0,20):
+ tablet=["Paracetamol","Aspirine","Azithral","Asthalin","Sinarest"]            
+medicinetime=[12.00,1.00,2.00,3.00,5.00,18.00,20.00,7.00] 
+name = "mani" 
+medicine=random.choice(tablet)
+ medicinetime=random.choice(medicinetime)
+ mydata = {'Patient Name': name, 'Medicine Name': medicine, 'Time': medicinetime} 
+client.publishEvent("IoTSensor", "json", data=mydata, qos=0, onPublish=NONE)
+print("Data published to IBM IOT platform :", mydata) 
+time.sleep(5)
+ client.disconnect()
