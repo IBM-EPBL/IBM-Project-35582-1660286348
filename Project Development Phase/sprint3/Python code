@@ -1,0 +1,66 @@
+import time
+import sys
+import ibmiotf.application
+import ibmiotf.device
+import random
+
+
+#Provide your IBM Watson Device Credentials
+organization = "ts2p3l"
+deviceType = "medicine1-device_type."
+deviceId = "PNT2022TMID29933-Medicine"
+authMethod = "token"
+authToken = "lq!RGKJdXNRjtvm0x2"
+
+# Initialize GPIO
+
+
+def myCommandCallback(cmd):
+    print("Command received: %s" % cmd.data['command'])
+    status=cmd.data['command']
+    if status=="lighton":
+        print ("led is on")
+    else :
+        print ("led is off")
+   
+    #print(cmd)
+    
+        
+
+
+try:
+	deviceOptions = {"org": organization, "type": deviceType, "id": deviceId, "auth-method": authMethod, "auth-token": authToken}
+	deviceCli = ibmiotf.device.Client(deviceOptions)
+	#..............................................
+	
+except Exception as e:
+	print("Caught exception connecting device: %s" % str(e))
+	sys.exit()
+
+# Connect and send a datapoint "hello" with value "world" into the cloud as an event of type "greeting" 10 times
+deviceCli.connect()
+
+
+    
+for i in range(0,1000):
+    
+     
+     tablet=["Paracetamol","Aspirine","Azithral","Asthalin","Sinarest"]            
+     medicinetime=[12.00,1.00,2.00,3.00,5.00,18.00,20.00,7.00] 
+     name = "mani" 
+     medicine=random.choice(tablet)
+     medicinetime=random.choice(medicinetime)
+     mydata = {'Patient Name': name, 'Medicine Name': medicine, 'Time': medicinetime}
+     def myOnPublishCallback():
+             mydata = {'Patient Name': name, 'Medicine Name': medicine, 'Time': medicinetime}
+             print("Data published to IBM IOT platform :" ,mydata)
+     success = deviceCli.publishEvent("IoTSensor", "json", mydata, qos=0, on_publish=myOnPublishCallback)
+   
+     if not success:
+          print("Not connected to IoTF")
+     time.sleep(1)
+        
+     deviceCli.commandCallback = myCommandCallback
+
+# Disconnect the device and application from the cloud
+deviceCli.disconnect()
